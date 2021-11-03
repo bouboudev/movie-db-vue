@@ -1,8 +1,12 @@
 <template>
   <div class="movie-detail">
-     <h2>{{movie.Title}}</h2>
-    <p>{{ movie.Year }}</p>
-    <img :src="movie.Poster" alt="Movie Poster" class="featured-img" />
+    <img :src="movie.Poster" :alt="'Affiche du film ' + movie.Title" />
+    <div class="type">{{ movie.Type }}</div>
+    <div class="detail">
+      <p class="year">{{ movie.Year }}</p>
+      <h3>{{ movie.Title }}</h3>
+    </div>
+
     <p>{{ movie.Plot }}</p>
   </div>
 </template>
@@ -37,20 +41,45 @@ export default {
 .movie-detail {
   padding: 16px;
   h2 {
-    color: #FFF;
+    color: #fff;
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 16px;
   }
   .featured-img {
     display: block;
-    max-width: 200px;
+    max-width: 300px;
     margin-bottom: 16px;
   }
   p {
-    color: #FFF;
+    display: block;
+    max-width: 700px;
+    color: #fff;
     font-size: 18px;
     line-height: 1.4;
+  }
+}
+
+
+@media screen and (max-width: 1280px) {
+  .movie-detail {
+    padding: 16px;
+    h2 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .featured-img {
+      display: block;
+      max-width: 200px;
+      margin-bottom: 16px;
+    }
+    p {
+      color: #fff;
+      font-size: 18px;
+      line-height: 1.4;
+    }
   }
 }
 </style>
