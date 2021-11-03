@@ -22,7 +22,7 @@ export default {
     onBeforeMount(() => {
       // appel api en fonction de l'id du film avec description longue
       fetch(
-        `http://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`
+        `https://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`
       )
         .then((response) => response.json())
         .then((data) => {
