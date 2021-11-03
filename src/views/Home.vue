@@ -29,17 +29,24 @@
 
     <div class="movies-list">
       <div class="movie" v-for="movie in movies" :key="movie.imdbID">
-         <router-link v-bind:to="'/movie/' + movie.imdbID" class="movie-link">
-          <img :src="movie.Poster" :alt= "'Affiche du film ' + movie.Title" />              
-         </router-link>
+        <router-link v-bind:to="'/movie/' + movie.imdbID" class="movie-link">
+          <div class="product-image">
+            <img :src="movie.Poster" :alt="'Affiche du film ' + movie.Title" />
+            <div class="type">{{ movie.Type }}</div>
+          </div>
+          <div class="detail">
+            <p class="year">{{movie.Year}}</p>
+            <h3>{{movie.Title}}</h3>
+          </div>
+        </router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import env from '@/env.js';
+import { ref } from "vue";
+import env from "@/env.js";
 
 export default {
   setup() {
@@ -53,7 +60,6 @@ export default {
             movies.value = data.Search;
             // vider le input
             search.value = "";
-           
           });
       }
     };
