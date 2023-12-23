@@ -1,9 +1,9 @@
 <template>
- <header>
-   <router-link to="/">
-<h1> Database Movies <span> in Vue</span></h1>
-   </router-link>
- </header>
+  <header>
+    <router-link to="/">
+  <h1> Base de données de films <span> en Vue</span></h1>
+  </router-link>
+  </header>
   <router-view/>
 </template>
 

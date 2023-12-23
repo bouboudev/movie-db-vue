@@ -1,21 +1,6 @@
 <template>
   <div class="home">
     <div class="feature-card">
-      <img src="../assets/cinema.jpg" alt="cinema" class="featured-img" />
-      <div class="detail">
-        <h3>Cinema</h3>
-        <p>
-          Le cinéma est un art du spectacle. En français, il est désigné comme
-          le « septième art », d'après l'expression du critique Ricciotto Canudo
-          dans les années 19201. L’art cinématographique se caractérise par le
-          spectacle proposé au public sous la forme d’un film, c’est-à-dire d’un
-          récit (fictionnel ou documentaire), véhiculé par un support (pellicule
-          souple, bande magnétique, contenant numérique) qui est enregistré puis
-          lu par un mécanisme continu ou intermittent qui crée l’illusion
-          d’images en mouvement, ou par un enregistrement et une lecture
-          continus de données informatiques.
-        </p>
-      </div>
     </div>
     <form @submit.prevent="SearchMovies()" class="search-box">
       <input
