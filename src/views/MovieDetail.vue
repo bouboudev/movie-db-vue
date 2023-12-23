@@ -1,5 +1,10 @@
 <template>
   <div class="movie-detail">
+    <div>
+      <router-link to="/">
+        <button class="btn-back">Revenir en arrière</button>
+      </router-link>
+    </div>
     <img :src="movie.Poster" :alt="'Affiche du film ' + movie.Title" />
     <div class="type">{{ movie.Type }}</div>
     <div class="detail">
@@ -58,6 +63,20 @@ export default {
     font-size: 18px;
     line-height: 1.4;
   }
+}
+.btn-back {
+  // style du bouton de retour
+  background: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #35495e;
+  margin-bottom: 16px;
+  cursor: pointer;
+  
+
 }
 
 
