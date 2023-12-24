@@ -5,38 +5,50 @@
         <button class="btn-back">Revenir en arrière</button>
       </router-link>
     </div>
-    <img :src="movie.Poster" :alt="'Affiche du film ' + movie.Title" />
+    <img :src="getImageUrl(movie.poster_path)" :alt="'Affiche du film ' + movie.title" />
     <div class="type">{{ movie.Type }}</div>
     <div class="detail">
-      <p class="year">{{ movie.Year }}</p>
-      <h3>{{ movie.Title }}</h3>
+      <p class="year">{{ movie.release_date }}</p>
+      <h3>{{ movie.title }}</h3>
     </div>
 
-    <p>{{ movie.Plot }}</p>
+    <p>{{ movie.overview }}</p>
   </div>
 </template>
 <script>
 import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import env from "@/env.js";
+import { getImageUrl } from "../utils/image";
+
 export default {
   setup() {
     const movie = ref({});
     const route = useRoute();
 
     onBeforeMount(() => {
+      console.log('route',route)
       // appel api en fonction de l'id du film avec description longue
-      fetch(
-        `https://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          movie.value = data;
-        });
+      // fetch(
+      //   `https://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`
+      // )
+      //   .then((response) => response.json())
+      //   .then((data) => {
+      //     movie.value = data;
+      //   });
+        // `https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey2}`
+
+        fetch(`https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey2}`)
+          .then((response) => response.json())
+          .then((data) => {
+            movie.value = data;
+            console.log('resultat',data);
+          });
     });
 
     return {
       movie,
+      getImageUrl,
     };
   },
 };

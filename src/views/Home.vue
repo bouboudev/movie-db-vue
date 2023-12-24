@@ -13,14 +13,14 @@
 
     <div class="movies-list">
       <div class="movie" v-for="movie in movies" :key="movie.imdbID">
-        <router-link v-bind:to="'/movie/' + movie.imdbID" class="movie-link">
+        <router-link v-bind:to="'/movie/' + movie.id" class="movie-link">
           <div class="product-image">
-            <img :src="movie.Poster" :alt="'Affiche du film ' + movie.Title" />
+            <img :src="getImageUrl(movie.poster_path)" :alt="'Affiche du film ' + movie.title" />
             <div class="type">{{ movie.Type }}</div>
           </div>
           <div class="detail">
-            <p class="year">{{ movie.Year }}</p>
-            <h3>{{ movie.Title }}</h3>
+            <p class="year">{{ movie.release_date }}</p>
+            <h3>{{ movie.title }}</h3>
           </div>
         </router-link>
       </div>
@@ -29,28 +29,64 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import env from "@/env.js";
+import { getImageUrl } from "../utils/image";
 
 export default {
   setup() {
     const search = ref("");
     const movies = ref([]);
+    // const SearchMovies = () => {
+    //   if (search.value != "") {
+    //     fetch(`https://www.omdbapi.com/?apikey=${env.apikey}&s=${search.value}`)
+    //       .then((response) => response.json())
+    //       .then((data) => {
+    //         movies.value = data.Search;
+    //         search.value = "";
+    //       });
+    //   }
+    // };
     const SearchMovies = () => {
-      if (search.value != "") {
-        fetch(`https://www.omdbapi.com/?apikey=${env.apikey}&s=${search.value}`)
+
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${env.apikey2}&query=${search.value}`)
           .then((response) => response.json())
           .then((data) => {
-            movies.value = data.Search;
-            // vider le input
+            movies.value = data.results;
+            console.log('resultat',data);
             search.value = "";
+            const genresMap = new Map();
+
+            // Créez une carte des genres avec id comme clé et nom comme valeur
+            data.genres.forEach((genre) => {
+              genresMap.set(genre.id, genre.name);
+            });
+
+            // Utilisez la carte des genres dans votre application
+            console.log('Genres Map:', genresMap);
           });
-      }
     };
+
+    const SearchTopMovies = () => {
+      fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${env.apikey2}`)
+        .then((response) => response.json())
+        .then((data) => {
+          movies.value = data.results;
+          console.log('resultat',data);
+          search.value = "";
+        });
+    };
+
+    
+    onMounted(() => {
+      SearchTopMovies();
+    });
     return {
       search,
       movies,
       SearchMovies,
+      getImageUrl,
+      SearchTopMovies
     };
   },
 };
