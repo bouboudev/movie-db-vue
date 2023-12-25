@@ -10,13 +10,16 @@
       />
       <input type="submit" value="Rechercher" />
     </form>
-
+    
     <div class="movies-list">
-      <div class="movie" v-for="movie in movies" :key="movie.imdbID">
+      <div class="movie" v-for="movie in movies" :key="movie.id">
         <router-link v-bind:to="'/movie/' + movie.id" class="movie-link">
           <div class="product-image">
+            <div class="vote-average">
+              <CircularPercentage :voteAverage="movie.vote_average" :widthDynamic="widthDynamic"/>
+            </div>
             <img :src="movie.poster_path ? getImageUrl(movie.poster_path) : require('@/assets/no_image.jpg')" :alt="'Affiche du film ' + movie.title" />
-
+            
           </div>
           <div class="detail">
             <p class="genre" v-for="genre in movie.genre" :key="genre.id">
@@ -35,11 +38,17 @@
 import { ref, onMounted } from "vue";
 import env from "@/env.js";
 import { getImageUrl } from "../utils/image";
+import CircularPercentage from "../components/CircularPercentage.vue";
 
 export default {
+  components: {
+    CircularPercentage,
+  },
   setup() {
     const search = ref("");
     const movies = ref([]);
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     const SearchMovies = async () => {
       try {
@@ -115,6 +124,9 @@ export default {
       getImageUrl,
       SearchTopMovies,
       GetNameGenre,
+      CircularPercentage,
+      isMobile,
+      widthDynamic: isMobile ? '65%' : '55%',
     };
   },
 };
@@ -214,6 +226,12 @@ export default {
             height: 100%;
             object-fit: cover;
           }
+          .vote-average {
+              position: absolute;
+              bottom: -12px;
+              left: -40px;
+              z-index: 1;
+            }
         }
         .detail {
           background-color: #496583;
@@ -340,6 +358,11 @@ export default {
               height: 275px;
               object-fit: cover;
             }
+            .vote-average {
+              bottom: -7px;
+              left: -29px; 
+              z-index: 1; 
+          }
           }
           .detail {
             background-color: #496583;
@@ -361,4 +384,5 @@ export default {
     }
   }
 }
+
 </style>
