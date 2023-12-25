@@ -23,5 +23,5 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-### LIEN HEROKU
-https://movie-db-vue-boubou.herokuapp.com
+### LIEN 
+https://beamish-daifuku-e020de.netlify.app/
