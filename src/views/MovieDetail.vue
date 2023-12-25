@@ -6,10 +6,12 @@
       </router-link>
     </div>
     <img :src="getImageUrl(movie.poster_path)" :alt="'Affiche du film ' + movie.title" />
-    <div class="type">{{ movie.Type }}</div>
     <div class="detail">
-      <p class="year">{{ movie.release_date }}</p>
       <h3>{{ movie.title }}</h3>
+      <p class="year">{{ movie.release_date }}</p>
+      <p class="genre" v-for="genre in movie.genres" :key="genre.id">
+              {{ genre.name }}
+            </p>
     </div>
 
     <p>{{ movie.overview }}</p>
@@ -27,28 +29,23 @@ export default {
     const route = useRoute();
 
     onBeforeMount(() => {
-      console.log('route',route)
-      // appel api en fonction de l'id du film avec description longue
-      // fetch(
-      //   `https://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`
-      // )
-      //   .then((response) => response.json())
-      //   .then((data) => {
-      //     movie.value = data;
-      //   });
-        // `https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey2}`
+      getMovie();
+    });
 
-        fetch(`https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey2}`)
+    const getMovie = async () => {
+      fetch(`https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey2}`)
           .then((response) => response.json())
           .then((data) => {
             movie.value = data;
-            console.log('resultat',data);
+            console.log('resultat :',data.genres);
           });
-    });
+
+    };
 
     return {
       movie,
       getImageUrl,
+      getMovie,
     };
   },
 };

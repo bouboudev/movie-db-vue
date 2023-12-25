@@ -15,12 +15,15 @@
       <div class="movie" v-for="movie in movies" :key="movie.imdbID">
         <router-link v-bind:to="'/movie/' + movie.id" class="movie-link">
           <div class="product-image">
-            <img :src="getImageUrl(movie.poster_path)" :alt="'Affiche du film ' + movie.title" />
-            <div class="type">{{ movie.Type }}</div>
+            <img :src="movie.poster_path ? getImageUrl(movie.poster_path) : require('@/assets/no_image.jpg')" :alt="'Affiche du film ' + movie.title" />
+
           </div>
           <div class="detail">
-            <p class="year">{{ movie.release_date }}</p>
+            <p class="genre" v-for="genre in movie.genre" :key="genre.id">
+              {{ genre }}
+            </p>
             <h3>{{ movie.title }}</h3>
+            <p class="year">{{ typeof movie.release_date === 'string' ? movie.release_date.slice(0, 4) : '' }}</p>
           </div>
         </router-link>
       </div>
@@ -37,56 +40,81 @@ export default {
   setup() {
     const search = ref("");
     const movies = ref([]);
-    // const SearchMovies = () => {
-    //   if (search.value != "") {
-    //     fetch(`https://www.omdbapi.com/?apikey=${env.apikey}&s=${search.value}`)
-    //       .then((response) => response.json())
-    //       .then((data) => {
-    //         movies.value = data.Search;
-    //         search.value = "";
-    //       });
-    //   }
-    // };
-    const SearchMovies = () => {
 
-        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${env.apikey2}&query=${search.value}`)
-          .then((response) => response.json())
-          .then((data) => {
-            movies.value = data.results;
-            console.log('resultat',data);
-            search.value = "";
-            const genresMap = new Map();
+    const SearchMovies = async () => {
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${env.apikey2}&query=${search.value}`);
+        const data = await response.json();
 
-            // Créez une carte des genres avec id comme clé et nom comme valeur
-            data.genres.forEach((genre) => {
-              genresMap.set(genre.id, genre.name);
-            });
+        movies.value = data.results;
+        search.value = "";
 
-            // Utilisez la carte des genres dans votre application
-            console.log('Genres Map:', genresMap);
-          });
-    };
+        console.log('data :::: :', data);
 
-    const SearchTopMovies = () => {
-      fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${env.apikey2}`)
-        .then((response) => response.json())
-        .then((data) => {
-          movies.value = data.results;
-          console.log('resultat',data);
-          search.value = "";
+        const genrePromises = data.results.map(movie => GetNameGenre(movie.genre_ids));
+        const genreArrays = await Promise.all(genrePromises);
+
+        movies.value.forEach((movie, index) => {
+          movie.genre = genreArrays[index];
         });
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération des meilleurs films :', error);
+      }
     };
 
-    
+    const GetNameGenre = async (id) => {
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${env.apikey2}`);
+        const data = await response.json();
+
+        const genresMap = new Map();
+        data.genres.forEach(genre => {
+          genresMap.set(genre.id, genre.name);
+        });
+
+        const genreNames = id.map(genreId => genresMap.get(genreId));
+        return genreNames;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des genres :', error);
+        return [];
+      }
+    };
+
+    const SearchTopMovies = async () => {
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${env.apikey2}`);
+        const data = await response.json();
+
+        movies.value = data.results;
+        search.value = "";
+
+        const genrePromises = data.results.map(movie => GetNameGenre(movie.genre_ids));
+        const genreArrays = await Promise.all(genrePromises);
+
+        console.log('data :::: :', data);
+
+        movies.value.forEach((movie, index) => {
+          movie.genre = genreArrays[index];
+        });
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération des meilleurs films :', error);
+      }
+    };
+
+
     onMounted(() => {
       SearchTopMovies();
     });
+
     return {
       search,
       movies,
       SearchMovies,
       getImageUrl,
-      SearchTopMovies
+      SearchTopMovies,
+      GetNameGenre,
     };
   },
 };
@@ -186,15 +214,6 @@ export default {
             height: 100%;
             object-fit: cover;
           }
-          .type {
-            position: absolute;
-            padding: 8px 16px;
-            background-color: #42b883;
-            color: #fff;
-            bottom: 16px;
-            left: 0px;
-            text-transform: capitalize;
-          }
         }
         .detail {
           background-color: #496583;
@@ -209,6 +228,17 @@ export default {
             color: #fff;
             font-weight: 600;
             font-size: 18px;
+          }
+          p {
+            margin: 4px
+          }
+          .genre {
+            display: inline-block;
+            padding: 4px 8px;
+            color: #fff;
+            font-size: 12px;
+            margin: 2px 4px;
+            background-color: #42b883;
           }
         }
       }
@@ -309,15 +339,6 @@ export default {
               width: 100%;
               height: 275px;
               object-fit: cover;
-            }
-            .type {
-              position: absolute;
-              padding: 8px 16px;
-              background-color: #42b883;
-              color: #fff;
-              bottom: 16px;
-              left: 0px;
-              text-transform: capitalize;
             }
           }
           .detail {
