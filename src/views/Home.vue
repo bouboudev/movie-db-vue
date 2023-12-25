@@ -10,13 +10,16 @@
       />
       <input type="submit" value="Rechercher" />
     </form>
-
+    
     <div class="movies-list">
-      <div class="movie" v-for="movie in movies" :key="movie.imdbID">
+      <div class="movie" v-for="movie in movies" :key="movie.id">
         <router-link v-bind:to="'/movie/' + movie.id" class="movie-link">
           <div class="product-image">
+            <div class="vote-average">
+              <CircularPercentage :voteAverage="movie.vote_average"/>
+            </div>
             <img :src="movie.poster_path ? getImageUrl(movie.poster_path) : require('@/assets/no_image.jpg')" :alt="'Affiche du film ' + movie.title" />
-
+            
           </div>
           <div class="detail">
             <p class="genre" v-for="genre in movie.genre" :key="genre.id">
@@ -35,8 +38,12 @@
 import { ref, onMounted } from "vue";
 import env from "@/env.js";
 import { getImageUrl } from "../utils/image";
+import CircularPercentage from "../components/CircularPercentage.vue";
 
 export default {
+  components: {
+    CircularPercentage,
+  },
   setup() {
     const search = ref("");
     const movies = ref([]);
@@ -115,6 +122,7 @@ export default {
       getImageUrl,
       SearchTopMovies,
       GetNameGenre,
+      CircularPercentage,
     };
   },
 };
@@ -214,6 +222,13 @@ export default {
             height: 100%;
             object-fit: cover;
           }
+          .vote-average {
+              // Positionnement dans le coin inférieur gauche
+              position: absolute;
+              bottom: -12px;
+              left: -40px;
+              z-index: 1; // Assurez-vous que le composant reste au-dessus de l'image
+            }
         }
         .detail {
           background-color: #496583;
@@ -340,6 +355,12 @@ export default {
               height: 275px;
               object-fit: cover;
             }
+            .vote-average {
+            position: absolute;
+            bottom: 8px;
+            left: 8px; 
+            z-index: 1; 
+          }
           }
           .detail {
             background-color: #496583;
