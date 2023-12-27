@@ -4,12 +4,12 @@
     </div>
     <form @submit.prevent="SearchMovies()" class="search-box">
       <input
-        type="text"
-        placeholder="Quel film recherches-tu ?"
-        v-model="search"
+      type="search"
+      placeholder="Quel film recherches-tu ?"
+      v-model="search"
       />
-      <input type="submit" value="Rechercher" />
-    </form>
+    <input type="submit" value="Rechercher" />
+  </form>
     
     <div class="movies-list">
       <div class="movie" v-for="movie in movies" :key="movie.id">
@@ -34,8 +34,10 @@
   </div>
 </template>
 
+
+
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import env from "@/env.js";
 import { getImageUrl } from "../utils/image";
 import CircularPercentage from "../components/CircularPercentage.vue";
@@ -45,10 +47,19 @@ export default {
     CircularPercentage,
   },
   setup() {
-    const search = ref("");
+    const search = ref(localStorage.getItem('search') || "");
     const movies = ref([]);
-
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+
+    const clearSearch = () => {
+
+      search.value = "";
+
+      clearCache();
+
+      SearchTopMovies();
+    };
 
     const SearchMovies = async () => {
       try {
@@ -56,11 +67,30 @@ export default {
         const data = await response.json();
 
         movies.value = data.results;
-        search.value = "";
 
-        console.log('data :::: :', data);
+        const genrePromises = movies.value.map(movie => GetNameGenre(movie.genre_ids));
+        const genreArrays = await Promise.all(genrePromises);
 
-        const genrePromises = data.results.map(movie => GetNameGenre(movie.genre_ids));
+        movies.value.forEach((movie, index) => {
+          movie.genre = genreArrays[index];
+        });
+
+
+        cacheResults(movies.value);
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération des meilleurs films :', error);
+      }
+    };
+
+    const SearchTopMovies = async () => {
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${env.apikey2}`);
+        const data = await response.json();
+
+        movies.value = data.results;
+
+        const genrePromises = movies.value.map(movie => GetNameGenre(movie.genre_ids));
         const genreArrays = await Promise.all(genrePromises);
 
         movies.value.forEach((movie, index) => {
@@ -90,47 +120,74 @@ export default {
       }
     };
 
-    const SearchTopMovies = async () => {
-      try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${env.apikey2}`);
-        const data = await response.json();
 
-        movies.value = data.results;
-        search.value = "";
-
-        const genrePromises = data.results.map(movie => GetNameGenre(movie.genre_ids));
-        const genreArrays = await Promise.all(genrePromises);
-
-        console.log('data :::: :', data);
-
-        movies.value.forEach((movie, index) => {
-          movie.genre = genreArrays[index];
-        });
-
-      } catch (error) {
-        console.error('Erreur lors de la récupération des meilleurs films :', error);
-      }
+    const cacheResults = (results) => {
+      localStorage.setItem('searchResults', JSON.stringify(results));
     };
 
 
+    const getCachedResults = () => {
+      const cachedResults = localStorage.getItem('searchResults');
+
+      if (cachedResults) {
+        return JSON.parse(cachedResults);
+      }
+
+      return null;
+    };
+
+
+    const clearCache = () => {
+      localStorage.removeItem('searchResults');
+    };
+
+
+    const saveSearchToLocalStorage = () => {
+      localStorage.setItem('search', search.value);
+    };
+
     onMounted(() => {
-      SearchTopMovies();
+
+      const cachedResults = getCachedResults();
+
+      if (cachedResults) {
+        movies.value = cachedResults;
+      } else {
+
+        SearchTopMovies();
+      }
+
+
+      watch(search, () => {
+        saveSearchToLocalStorage();
+      });
+      watch(search, () => {
+        if (search.value.length === 0) {
+          clearSearch();
+        }
+      });
     });
 
     return {
       search,
       movies,
       SearchMovies,
-      getImageUrl,
       SearchTopMovies,
+      getImageUrl,
       GetNameGenre,
       CircularPercentage,
       isMobile,
       widthDynamic: isMobile ? '65%' : '55%',
+      clearCache,
+      clearSearch,
     };
   },
 };
 </script>
+
+
+
+
 
 <style lang="scss">
 .home {
@@ -173,7 +230,7 @@ export default {
       border: none;
       outline: none;
       background: none;
-      &[type="text"] {
+      &[type="search"] {
         width: 50%;
         color: #fff;
         background-color: #496583;
@@ -305,7 +362,7 @@ export default {
         border: none;
         outline: none;
         background: none;
-        &[type="text"] {
+        &[type="search"] {
           width: 100%;
           color: #fff;
           background-color: #496583;
